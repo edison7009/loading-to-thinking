@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Thinking Indicator — 36 种 AI 时代加载动画生成器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+    html, body {
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(56,189,248,0.10), transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, rgba(168,85,247,0.10), transparent 55%),
+        #05070d;
+      font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    }
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .label-cap {
+      font-size: 10.5px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(226,232,240,0.55);
+      font-weight: 600;
+    }
+
+    /* Range sliders */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      height: 4px;
+      background: linear-gradient(90deg, rgba(99,102,241,0.7), rgba(56,189,248,0.7));
+      border-radius: 999px;
+    }
+    input[type=range]::-moz-range-track {
+      height: 4px;
+      background: linear-gradient(90deg, rgba(99,102,241,0.7), rgba(56,189,248,0.7));
+      border-radius: 999px;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      background: #fff;
+      margin-top: -6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5), 0 0 0 4px rgba(255,255,255,0.06);
+      cursor: pointer;
+      transition: transform .1s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+    input[type=range]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border: none;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      cursor: pointer;
+    }
+
+    /* Color preset chip */
+    .chip {
+      width: 36px; height: 36px;
+      border-radius: 999px;
+      border: 2px solid rgba(255,255,255,0.12);
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .chip:hover { transform: scale(1.08); border-color: rgba(255,255,255,0.35); }
+    .chip[data-active="true"] {
+      border-color: #fff;
+      transform: scale(1.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 3px rgba(56,189,248,0.25), 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    /* Pattern button */
+    .pattern-btn {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 8px 6px;
+      cursor: pointer;
+      transition: all .15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .pattern-btn:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.15); }
+    .pattern-btn[data-active="true"] {
+      background: rgba(56,189,248,0.10);
+      border-color: rgba(56,189,248,0.45);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.25), 0 8px 24px -8px rgba(56,189,248,0.35);
+    }
+    .pattern-btn .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+    }
+    .pattern-btn .mini-dot {
+      width: 8px; height: 8px;
+      animation: aiThink 1.4s ease-in-out infinite;
+    }
+    .pattern-btn .name {
+      font-size: 9.5px;
+      color: rgba(226,232,240,0.7);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+    .pattern-btn[data-active="true"] .name { color: #e0f2fe; }
+
+    /* Segmented control */
+    .seg {
+      display: inline-flex;
+      padding: 3px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+    }
+    .seg button {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 7px;
+      color: rgba(226,232,240,0.65);
+      transition: all .15s ease;
+      font-weight: 500;
+    }
+    .seg button:hover { color: #fff; }
+    .seg button[data-active="true"] {
+      background: linear-gradient(180deg, rgba(99,102,241,0.55), rgba(56,189,248,0.45));
+      color: #fff;
+      box-shadow: 0 4px 12px -4px rgba(56,189,248,0.5);
+    }
+
+    /* Code area */
+    pre.code {
+      background: #07090f;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #cbd5e1;
+      overflow: auto;
+      max-height: 380px;
+    }
+    pre.code .k { color: #c084fc; }   /* keyword */
+    pre.code .s { color: #86efac; }   /* string */
+    pre.code .a { color: #f0abfc; }   /* attr */
+    pre.code .t { color: #60a5fa; }   /* tag */
+    pre.code .c { color: #64748b; }   /* comment */
+    pre.code .n { color: #fbbf24; }   /* number */
+
+    /* Dot animation keyframes */
+    /* Think: 9 个点位置不动,依次被"激活"——AI thinking 的标志性视觉 */
+    @keyframes aiThink {
+      0%, 100% { transform: scale(0.85); opacity: 0.18; filter: brightness(0.7); }
+      50%      { transform: scale(var(--spin-scale, 1.15)); opacity: 1; filter: brightness(1.2); }
+    }
+    /* Fade: 点会消失再出现——传统 loading 风格 */
+    @keyframes aiFade {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50%      { transform: scale(var(--spin-scale, 1.3)); opacity: 0; }
+    }
+    .preview-glow {
+      position: absolute; inset: 0;
+      border-radius: 999px;
+      filter: blur(60px);
+      opacity: 0.35;
+      pointer-events: none;
+      transition: background-color .3s ease, opacity .3s ease;
+    }
+
+    /* Spinner wall */
+    #spinnerWall {
+      display: grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .wall-row {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(64px, 1fr));
+      gap: 6px;
+    }
+    .wall-cell {
+      position: relative;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 10px;
+      padding: 10px 6px 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s ease, border-color .15s ease, transform .15s ease;
+    }
+    .wall-cell:hover {
+      background: rgba(255,255,255,0.04);
+      border-color: rgba(255,255,255,0.12);
+    }
+    .wall-cell[data-active="true"] {
+      background: rgba(56,189,248,0.08);
+      border-color: rgba(56,189,248,0.5);
+      box-shadow: 0 0 0 1px rgba(56,189,248,0.3), 0 4px 18px -4px rgba(56,189,248,0.35);
+      transform: translateY(-1px);
+    }
+    .wall-mini {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+    }
+    .wall-mini > div {
+      width: 8px; height: 8px;
+      animation: aiThink 1.2s ease-in-out infinite;
+    }
+    .wall-label {
+      font-size: 9.5px;
+      color: rgba(226,232,240,0.55);
+      letter-spacing: 0.02em;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      text-align: center;
+    }
+    .wall-cell[data-active="true"] .wall-label { color: #e0f2fe; }
+
+    /* Row color controls (3 rows) */
+    .row-color-ctl {
+      display: grid;
+      grid-template-columns: 28px 32px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+    .row-color-ctl .row-idx {
+      font-size: 10px;
+      color: rgba(226,232,240,0.55);
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      text-align: center;
+    }
+    .row-color-ctl .color-picker-swatch {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+    }
+    .row-color-ctl .hex-input {
+      width: 100%;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(15,23,42,0.95);
+      border: 1px solid rgba(56,189,248,0.35);
+      color: #e0f2fe;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all .25s ease;
+      box-shadow: 0 12px 32px -8px rgba(56,189,248,0.35);
+      pointer-events: none;
+      z-index: 50;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Scrollbar (slim) */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
+
+    /* Inputs */
+    .num-input {
+      width: 56px;
+      text-align: right;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 3px 6px;
+      font-size: 12px;
+      color: #e2e8f0;
+      font-variant-numeric: tabular-nums;
+    }
+    .num-input:focus { outline: none; border-color: rgba(56,189,248,0.5); }
+
+    .hex-input {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12.5px;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      width: 100px;
+      text-transform: uppercase;
+    }
+    .hex-input:focus { outline: none; border-color: rgba(56,189,248,0.5); }
+
+    .color-picker-swatch {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.12);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .color-picker-swatch input[type=color] {
+      position: absolute;
+      inset: -4px;
+      width: calc(100% + 8px);
+      height: calc(100% + 8px);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .copy-btn {
+      background: linear-gradient(180deg, rgba(99,102,241,0.9), rgba(56,189,248,0.85));
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      transition: all .15s ease;
+      box-shadow: 0 4px 14px -4px rgba(56,189,248,0.55);
+    }
+    .copy-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px -4px rgba(56,189,248,0.7); }
+    .copy-btn:active { transform: translateY(0); }
+
+    /* Section divider */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      margin: 18px 0;
+    }
+  </style>
+</head>
+<body class="text-slate-200 min-h-screen">
+  <!-- Header -->
+  <header class="relative max-w-[1400px] mx-auto px-6 pt-10 pb-6 text-center">
+    <div class="absolute top-6 right-6 seg" id="langToggle">
+      <button data-lang="zh" data-active="true">中</button>
+      <button data-lang="en">EN</button>
+    </div>
+    <h1 data-i18n="title" class="text-[26px] md:text-[30px] font-semibold tracking-tight text-slate-100">请把"加载中"改成"思考中...."</h1>
+    <p data-i18n="subtitle" class="text-[10.5px] tracking-[0.3em] uppercase text-slate-500 mt-2.5 font-medium">NO "Loading..."  YES "Thinking..."</p>
+  </header>
+
+  <!-- Main grid -->
+  <main class="max-w-[1400px] mx-auto px-6 pb-12 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-5">
+
+    <!-- LEFT: Preview + Code -->
+    <div class="space-y-5">
+
+      <!-- Spinner Wall -->
+      <section class="glass rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2">
+            <span class="relative flex w-2 h-2">
+              <span class="absolute inset-0 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+              <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-400"></span>
+            </span>
+            <span class="label-cap" data-i18n="wallLabel">展示墙</span>
+            <span class="text-[10.5px] text-slate-500 ml-2" data-i18n="wallHint">36 个动画同步演奏 · 点击选择导出</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="randomBtn" data-i18n="random" class="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition-colors">🎲 随机</button>
+            <button id="resetBtn" data-i18n="reset" class="text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/5 transition-colors">↺ 重置</button>
+          </div>
+        </div>
+        <div id="spinnerWall" class="relative w-full rounded-xl overflow-auto p-4" style="background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 70%); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.05);">
+          <!-- 3 rows × 12 cells built by JS -->
+        </div>
+      </section>
+
+      <!-- Code export -->
+      <section class="glass rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <span class="label-cap" data-i18n="exportCode">导出代码</span>
+            <div class="seg" id="codeTabs">
+              <button data-tab="html" data-active="true">HTML + CSS</button>
+              <button data-tab="react">React + Tailwind</button>
+              <button data-tab="css" data-i18n="purecss">纯 CSS</button>
+            </div>
+          </div>
+          <button id="copyBtn" class="copy-btn flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span data-i18n="copy">一键复制</span>
+          </button>
+        </div>
+        <!-- IDE-style filename bar -->
+        <div class="flex items-center gap-2 px-4 py-2 rounded-t-lg" style="background:#0a0d14;border:1px solid rgba(255,255,255,0.06);border-bottom:none;">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full" style="background:#ff5f57"></span>
+            <span class="w-2.5 h-2.5 rounded-full" style="background:#febc2e"></span>
+            <span class="w-2.5 h-2.5 rounded-full" style="background:#28c840"></span>
+          </div>
+          <span id="codeFilename" class="text-[11.5px] text-slate-400 ml-2 font-mono">thinking.html</span>
+        </div>
+        <pre class="code" style="border-top-left-radius:0;border-top-right-radius:0;margin-top:0;"><code id="codeBlock"></code></pre>
+      </section>
+    </div>
+
+    <!-- RIGHT: Controls -->
+    <aside class="glass rounded-2xl p-6">
+
+      <!-- Row Colors (3 rows) -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <span class="label-cap" data-i18n="rowColors">行颜色</span>
+          <span class="text-[10px] text-slate-500" data-i18n="rowColorsHint">每行的色调</span>
+        </div>
+        <div id="rowColorControls" class="space-y-2.5">
+          <!-- 3 row pickers built by JS -->
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Shape -->
+      <div>
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="label-cap" data-i18n="shape">形状</span>
+        </div>
+        <div class="seg w-full" id="shapeSeg" style="display:flex">
+          <button data-val="square" class="flex-1" data-i18n="shapeSquare">方形</button>
+          <button data-val="rounded" class="flex-1" data-active="true" data-i18n="shapeRounded">圆角</button>
+          <button data-val="circle" class="flex-1" data-i18n="shapeCircle">圆形</button>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Dot animation -->
+      <div>
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="label-cap" data-i18n="dotAnim">点动画</span>
+          <span class="text-[10px] text-slate-500" data-i18n="dotAnimHint">每个点怎么动</span>
+        </div>
+        <div class="seg w-full" id="dotAnimSeg" style="display:flex">
+          <button data-val="think" class="flex-1" data-active="true" data-i18n="dotAnimThink" data-i18n-title="dotAnimThinkTitle" title="9 个点位置不动,依次激活——AI thinking">思考</button>
+          <button data-val="fade" class="flex-1" data-i18n="dotAnimFade" data-i18n-title="dotAnimFadeTitle" title="点会消失再出现——传统 loading">渐隐</button>
+        </div>
+      </div>
+
+
+      <div class="divider"></div>
+
+      <!-- Glow slider -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="label-cap" data-i18n="glow">辉光</span>
+          <div class="flex items-center gap-1.5"><input type="number" id="glowNum" class="num-input" min="0" max="40" value="12" /><span class="text-[11px] text-slate-500">px</span></div>
+        </div>
+        <input type="range" id="glowRange" min="0" max="40" value="12" />
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Background -->
+      <div>
+        <div class="flex items-center justify-between mb-2.5">
+          <span class="label-cap" data-i18n="bg">背景色</span>
+        </div>
+        <div class="flex items-center gap-2 mb-3">
+          <label class="color-picker-swatch">
+            <input type="color" id="bgInput" value="#000000" />
+          </label>
+          <input type="text" id="bgHex" class="hex-input" value="#000000" maxlength="7" />
+        </div>
+        <div class="flex items-center gap-1.5 flex-wrap" id="bgPresetChips">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Glow background toggle -->
+      <div>
+        <label class="flex items-center justify-between cursor-pointer">
+          <span class="label-cap" data-i18n="bgGlow">背景光晕</span>
+          <input type="checkbox" id="bgGlowToggle" class="w-4 h-4 accent-cyan-400 cursor-pointer" />
+        </label>
+      </div>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast">已复制到剪贴板</div>
+
+  <script>
+    // ============ Data ============
+    const PATTERNS = {
+      "Wave-LR":      [0, 0.15, 0.3, 0, 0.15, 0.3, 0, 0.15, 0.3],
+      "Wave-RL":      [0.3, 0.15, 0, 0.3, 0.15, 0, 0.3, 0.15, 0],
+      "Wave-TB":      [0, 0, 0, 0.15, 0.15, 0.15, 0.3, 0.3, 0.3],
+      "Wave-BT":      [0.3, 0.3, 0.3, 0.15, 0.15, 0.15, 0, 0, 0],
+      "Wave-Diag-TL": [0, 0.12, 0.24, 0.12, 0.24, 0.36, 0.24, 0.36, 0.48],
+      "Wave-Diag-BR": [0.48, 0.36, 0.24, 0.36, 0.24, 0.12, 0.24, 0.12, 0],
+      "Ripple":       [0.3, 0.15, 0.3, 0.15, 0, 0.15, 0.3, 0.15, 0.3],
+      "Wave-Double":  [0, 0.15, 0.3, 0.1, 0.25, 0.4, 0, 0.15, 0.3],
+      "Wave-Spiral":  [0, 0.08, 0.16, 0.24, 0.32, 0.4, 0.48, 0.56, 0.64],
+      "Pulse":        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+      "Snake-CW":     [0, 0.15, 0.3, 1.05, 0.6, 0.45, 0.9, 0.75, 0.6],
+      "Snake-CCW":    [0, 1.05, 0.9, 0.15, 0.6, 0.75, 0.3, 0.45, 0.6]
+    };
+
+    const PRESETS = [
+      '#22D3EE', '#06B6D4', '#38BDF8', '#60A5FA',  // 蓝青系
+      '#818CF8', '#A855F7', '#C084FC', '#EC4899',  // 紫粉系
+      '#F472B6', '#FB7185', '#F87171', '#FB923C',  // 粉红橙系
+      '#FBBF24', '#FACC15', '#A3E635', '#34D399'   // 黄绿系
+    ];
+
+    const BG_PRESETS = [
+      { key: 'bgPureBlack', value: '#000000' },
+      { key: 'bgDeepSpace', value: '#0A0E1A' },
+      { key: 'bgSlate', value: '#1E293B' },
+      { key: 'bgDeepViolet', value: '#1E1B4B' },
+      { key: 'bgLightGray', value: '#F1F5F9' },
+      { key: 'bgPureWhite', value: '#FFFFFF' }
+    ];
+
+    // ============ i18n ============
+    const LANG = {
+      zh: {
+        title: '请把"加载中"改成"思考中...."',
+        subtitle: 'NO "Loading..."  YES "Thinking..."',
+        wallLabel: '展示墙',
+        wallHint: '36 个动画同步演奏 · 点击选择导出',
+        random: '🎲 随机',
+        reset: '↺ 重置',
+        exportCode: '导出代码',
+        purecss: '纯 CSS',
+        copy: '一键复制',
+        copied: '已复制到剪贴板 ✓',
+        rowColors: '行颜色',
+        rowColorsHint: '每行的色调',
+        shape: '形状',
+        shapeSquare: '方形',
+        shapeRounded: '圆角',
+        shapeCircle: '圆形',
+        dotAnim: '点动画',
+        dotAnimHint: '每个点怎么动',
+        dotAnimThink: '思考',
+        dotAnimFade: '渐隐',
+        dotAnimThinkTitle: '9 个点位置不动,依次激活——AI thinking',
+        dotAnimFadeTitle: '点会消失再出现——传统 loading',
+        glow: '辉光',
+        bg: '背景色',
+        bgGlow: '背景光晕',
+        bgPureBlack: '纯黑',
+        bgDeepSpace: '深空',
+        bgSlate: '石板',
+        bgDeepViolet: '深紫',
+        bgLightGray: '浅灰',
+        bgPureWhite: '纯白'
+      },
+      en: {
+        title: 'Replace "Loading..." with "Thinking..."',
+        subtitle: 'Own an AI product, fast.',
+        wallLabel: 'Showcase',
+        wallHint: '36 animations in sync · click to select',
+        random: '🎲 Random',
+        reset: '↺ Reset',
+        exportCode: 'Export',
+        purecss: 'Pure CSS',
+        copy: 'Copy',
+        copied: 'Copied to clipboard ✓',
+        rowColors: 'Row Colors',
+        rowColorsHint: 'One color per row',
+        shape: 'Shape',
+        shapeSquare: 'Square',
+        shapeRounded: 'Rounded',
+        shapeCircle: 'Circle',
+        dotAnim: 'Dot Animation',
+        dotAnimHint: 'How dots animate',
+        dotAnimThink: 'Think',
+        dotAnimFade: 'Fade',
+        dotAnimThinkTitle: '9 dots stay in place, light up in sequence — AI thinking',
+        dotAnimFadeTitle: 'Dots disappear and reappear — traditional loading',
+        glow: 'Glow',
+        bg: 'Background',
+        bgGlow: 'Background Glow',
+        bgPureBlack: 'Pure Black',
+        bgDeepSpace: 'Deep Space',
+        bgSlate: 'Slate',
+        bgDeepViolet: 'Deep Violet',
+        bgLightGray: 'Light Gray',
+        bgPureWhite: 'Pure White'
+      }
+    };
+
+    let lang = (typeof localStorage !== 'undefined' && localStorage.getItem('aiThinkingLang')) || 'zh';
+
+    function t(key) {
+      return (LANG[lang] && LANG[lang][key]) || key;
+    }
+
+    function applyLang() {
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      document.querySelectorAll('[data-i18n]').forEach((el) => {
+        el.textContent = t(el.dataset.i18n);
+      });
+      document.querySelectorAll('[data-i18n-title]').forEach((el) => {
+        el.title = t(el.dataset.i18nTitle);
+      });
+      // Toggle button active state
+      document.querySelectorAll('#langToggle button').forEach((b) => {
+        b.dataset.active = (b.dataset.lang === lang) ? 'true' : 'false';
+      });
+    }
+
+    function setLang(l) {
+      if (l !== 'zh' && l !== 'en') return;
+      lang = l;
+      try { localStorage.setItem('aiThinkingLang', l); } catch {}
+      applyLang();
+      // Re-render dynamic things that read t()
+      renderBgPresets();
+    }
+
+    const DEFAULTS = {
+      rowColors: ['#34D399', '#F472B6', '#22D3EE'],
+      selectedRow: 0,
+      selectedPattern: 'Wave-LR',
+      bg: '#000000',
+      shape: 'rounded',
+      dotAnim: 'think',
+      size: 16,
+      gap: 6,
+      speed: 1.2,
+      glow: 12,
+      scale: 1.3,
+      rot: 0,
+      bgGlow: false,
+      showText: true,
+      text: 'AI is thinking...',
+      textSize: 14,
+      textColor: '#94A3B8'
+    };
+
+    let state = { ...DEFAULTS };
+
+    // ============ Helpers ============
+    const $ = (id) => document.getElementById(id);
+    const radiusFor = (shape, size) => {
+      if (shape === 'square') return 0;
+      if (shape === 'circle') return Math.round(size / 2);
+      return Math.max(2, Math.round(size / 4));
+    };
+    const withAlpha = (hex, alpha) => {
+      const h = hex.replace('#','');
+      const r = parseInt(h.substr(0,2),16);
+      const g = parseInt(h.substr(2,2),16);
+      const b = parseInt(h.substr(4,2),16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+    const isValidHex = (s) => /^#?[0-9a-fA-F]{6}$/.test(s);
+    const normalizeHex = (s) => {
+      if (!s.startsWith('#')) s = '#' + s;
+      return s.toUpperCase();
+    };
+
+    // ============ Render Wall (3 rows × 12 patterns = 36 cells) ============
+    function renderWall() {
+      const wall = $('spinnerWall');
+      wall.style.background = state.bg === '#000000'
+        ? 'radial-gradient(ellipse at center, #0a0a0a 0%, #000000 70%)'
+        : state.bg;
+
+      const radius = radiusFor(state.shape, state.size);
+      const kf = state.dotAnim === 'fade' ? 'aiFade' : 'aiThink';
+      const miniRadius = state.shape === 'circle' ? '999px'
+        : (state.shape === 'square' ? '0' : '2px');
+
+      wall.innerHTML = '';
+      state.rowColors.forEach((rowColor, rowIdx) => {
+        const row = document.createElement('div');
+        row.className = 'wall-row';
+        const shadow = state.glow > 0
+          ? `0 0 ${state.glow / 3}px ${rowColor}, 0 0 ${state.glow / 1.5}px ${withAlpha(rowColor, 0.5)}`
+          : 'none';
+
+        Object.entries(PATTERNS).forEach(([patternName, delays]) => {
+          const cell = document.createElement('div');
+          cell.className = 'wall-cell';
+          cell.dataset.row = rowIdx;
+          cell.dataset.pattern = patternName;
+          cell.dataset.active = (rowIdx === state.selectedRow && patternName === state.selectedPattern) ? 'true' : 'false';
+
+          const mini = document.createElement('div');
+          mini.className = 'wall-mini';
+          delays.forEach((d) => {
+            const dot = document.createElement('div');
+            dot.style.background = rowColor;
+            dot.style.borderRadius = miniRadius;
+            dot.style.boxShadow = shadow;
+            dot.style.animation = `${kf} ${state.speed}s ease-in-out infinite`;
+            dot.style.animationDelay = d + 's';
+            dot.style.setProperty('--spin-scale', state.scale);
+            mini.appendChild(dot);
+          });
+
+          const label = document.createElement('span');
+          label.className = 'wall-label';
+          label.textContent = patternName;
+
+          cell.appendChild(mini);
+          cell.appendChild(label);
+          cell.addEventListener('click', () => {
+            state.selectedRow = rowIdx;
+            state.selectedPattern = patternName;
+            renderWall();
+          });
+
+          row.appendChild(cell);
+        });
+
+        wall.appendChild(row);
+      });
+
+      renderCode();
+    }
+
+    // ============ Render Row Color Controls (3 horizontal rows) ============
+    function renderRowColorControls() {
+      const wrap = $('rowColorControls');
+      wrap.innerHTML = '';
+      state.rowColors.forEach((color, idx) => {
+        const row = document.createElement('div');
+        row.className = 'row-color-ctl';
+        row.innerHTML = `
+          <span class="row-idx">${idx + 1}</span>
+          <label class="color-picker-swatch" style="background:${color}">
+            <input type="color" data-row="${idx}" value="${color.toLowerCase()}" />
+          </label>
+          <input type="text" class="hex-input" data-row="${idx}" value="${color}" maxlength="7" />
+        `;
+        wrap.appendChild(row);
+        const colorPicker = row.querySelector('input[type="color"]');
+        const hexInput = row.querySelector('input[type="text"]');
+        colorPicker.addEventListener('input', (e) => setRowColor(idx, e.target.value));
+        hexInput.addEventListener('input', (e) => {
+          const v = e.target.value;
+          if (isValidHex(v)) setRowColor(idx, v);
+        });
+      });
+    }
+
+    function setRowColor(idx, hex) {
+      hex = normalizeHex(hex);
+      if (!isValidHex(hex)) return;
+      state.rowColors[idx] = hex;
+      const row = $('rowColorControls').children[idx];
+      if (row) {
+        row.querySelector('.color-picker-swatch').style.background = hex;
+        row.querySelector('input[type="color"]').value = hex.toLowerCase();
+        const hexInput = row.querySelector('input[type="text"]');
+        if (hexInput.value.toUpperCase() !== hex) hexInput.value = hex;
+      }
+      renderWall();
+    }
+
+    function renderBgPresets() {
+      const wrap = $('bgPresetChips');
+      wrap.innerHTML = '';
+      BG_PRESETS.forEach(({ key, value }) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.style.background = value;
+        chip.title = t(key) + ' ' + value;
+        if (value === '#FFFFFF' || value === '#F1F5F9') {
+          chip.style.borderColor = 'rgba(255,255,255,0.3)';
+        }
+        chip.dataset.active = (value.toLowerCase() === state.bg.toLowerCase()) ? 'true' : 'false';
+        chip.addEventListener('click', () => setBg(value));
+        wrap.appendChild(chip);
+      });
+    }
+
+    function setBg(hex) {
+      hex = normalizeHex(hex);
+      if (!isValidHex(hex)) return;
+      state.bg = hex;
+      $('bgInput').value = hex.toLowerCase();
+      $('bgHex').value = hex;
+      renderBgPresets();
+      renderWall();
+    }
+
+    // ============ Code Generation ============
+    let currentTab = 'html';
+
+    function generateCode() {
+      const color = state.rowColors[state.selectedRow];
+      const delays = PATTERNS[state.selectedPattern];
+      const radius = radiusFor(state.shape, state.size);
+      const kfName = state.dotAnim === 'fade' ? 'aiFade' : 'aiThink';
+      const kfBody = state.dotAnim === 'fade'
+        ? `0%, 100% { transform: scale(1); opacity: 1; }\n  50%      { transform: scale(${state.scale}); opacity: 0; }`
+        : `0%, 100% { transform: scale(0.85); opacity: 0.18; filter: brightness(0.7); }\n  50%      { transform: scale(${state.scale}); opacity: 1; filter: brightness(1.2); }`;
+      const shadowVal = state.glow > 0
+        ? `0 0 ${state.glow / 2}px ${color}, 0 0 ${state.glow}px ${withAlpha(color, 0.5)}`
+        : 'none';
+
+      const hasText = state.showText && state.text.trim();
+      const textEsc = state.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+      if (currentTab === 'html') {
+        const dots = delays.map((d) =>
+          `        <div class="ai-thinking__dot" style="animation-delay:${d}s"></div>`
+        ).join('\n');
+        const textBlock = hasText
+          ? `\n    <div class="ai-thinking__text">${textEsc}</div>`
+          : '';
+        const textCss = hasText ? `
+  .ai-thinking__text {
+    color: ${state.textColor};
+    font-size: ${state.textSize}px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }` : '';
+        return `<!-- AI Spinner -->
+<div class="ai-thinking-wrap" style="background:${state.bg}">
+  <div class="ai-thinking-stack">
+    <div class="ai-thinking" style="transform:rotate(${state.rot}deg)">
+${dots}
+    </div>${textBlock}
+  </div>
+</div>
+
+<style>
+  .ai-thinking-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    border-radius: 16px;
+  }
+  .ai-thinking-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .ai-thinking {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: ${state.gap}px;
+  }
+  .ai-thinking__dot {
+    width: ${state.size}px;
+    height: ${state.size}px;
+    background: ${color};
+    border-radius: ${radius}px;
+    box-shadow: ${shadowVal};
+    animation: ${kfName} ${state.speed}s ease-in-out infinite;
+  }${textCss}
+  @keyframes ${kfName} {
+    ${kfBody}
+  }
+</style>`;
+      }
+
+      if (currentTab === 'react') {
+        const arr = JSON.stringify(delays);
+        const textJsx = hasText
+          ? `\n          <div style={{ color: '${state.textColor}', fontSize: ${state.textSize}, fontWeight: 500, letterSpacing: '0.04em' }}>${textEsc}</div>`
+          : '';
+        return `const DELAYS = ${arr};
+
+export function AIThinking() {
+  return (
+    <>
+      <style>{\`
+        @keyframes ${kfName} {
+          ${kfBody}
+        }
+      \`}</style>
+      <div
+        className="inline-flex items-center justify-center p-8 rounded-2xl"
+        style={{ background: '${state.bg}' }}
+      >
+        <div className="flex flex-col items-center gap-5">
+          <div
+            className="grid grid-cols-3"
+            style={{ gap: ${state.gap}, transform: 'rotate(${state.rot}deg)' }}
+          >
+            {DELAYS.map((delay, i) => (
+              <div
+                key={i}
+                style={{
+                  width: ${state.size},
+                  height: ${state.size},
+                  background: '${color}',
+                  borderRadius: ${radius},
+                  boxShadow: '${shadowVal}',
+                  animation: '${kfName} ${state.speed}s ease-in-out infinite',
+                  animationDelay: \`\${delay}s\`,
+                }}
+              />
+            ))}
+          </div>${textJsx}
+        </div>
+      </div>
+    </>
+  );
+}`;
+      }
+
+      // pure CSS
+      const dotRules = delays.map((d, i) =>
+        `.ai-thinking > div:nth-child(${i + 1}) { animation-delay: ${d}s; }`
+      ).join('\n');
+      const textCssRule = hasText ? `
+.ai-thinking-text {
+  color: ${state.textColor};
+  font-size: ${state.textSize}px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  margin-top: 20px;
+}` : '';
+      const gridHtml = `<div class="ai-thinking">
+  <div></div><div></div><div></div>
+  <div></div><div></div><div></div>
+  <div></div><div></div><div></div>
+</div>`;
+      const htmlExample = hasText
+        ? `<div class="ai-thinking-stack" style="display:flex;flex-direction:column;align-items:center">
+  ${gridHtml.replace(/\n/g, '\n  ')}
+  <div class="ai-thinking-text">${textEsc}</div>
+</div>`
+        : gridHtml;
+      return `/* AI Spinner — pure CSS */
+.ai-thinking {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: ${state.gap}px;
+  transform: rotate(${state.rot}deg);
+}
+.ai-thinking > div {
+  width: ${state.size}px;
+  height: ${state.size}px;
+  background: ${color};
+  border-radius: ${radius}px;
+  box-shadow: ${shadowVal};
+  animation: ${kfName} ${state.speed}s ease-in-out infinite;
+}
+${dotRules}${textCssRule}
+@keyframes ${kfName} {
+  ${kfBody}
+}
+
+/* HTML structure:
+${htmlExample}
+*/`;
+    }
+
+    // Simple HTML escape + token highlighter (placeholder-based to avoid re-matching inside spans)
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+    function highlight(code, tab) {
+      let s = escapeHtml(code);
+      const slots = [];
+      const ph = (i) => { let n=i,s=""; do { s=String.fromCharCode(65+(n%26))+s; n=Math.floor(n/26); } while(n>0); return ""+s+""; };
+      const wrap = (cls, text) => {
+        slots.push(`<span class="${cls}">${text}</span>`);
+        return ph(slots.length - 1);
+      };
+
+      // Comments first (so we don't tokenize inside them)
+      s = s.replace(/(\/\*[\s\S]*?\*\/|\/\/[^\n]*|&lt;!--[\s\S]*?--&gt;)/g, (m) => wrap('c', m));
+      // Strings (handle "..." and '...' — JSX/React uses both)
+      s = s.replace(/("[^"\n]*"|'[^'\n]*')/g, (m) => wrap('s', m));
+      // Template literals
+      s = s.replace(/(`[^`]*`)/g, (m) => wrap('s', m));
+      // Numbers (optionally followed by unit)
+      s = s.replace(/\b(\d+\.?\d*)(px|s|deg|%)?\b/g, (m) => wrap('n', m));
+
+      if (tab === 'react') {
+        s = s.replace(/\b(import|from|export|function|return|const|let|var)\b/g, (m) => wrap('k', m));
+      }
+      if (tab === 'html') {
+        s = s.replace(/(&lt;\/?)([a-zA-Z][a-zA-Z0-9-]*)/g, (full, p1, p2) => p1 + wrap('t', p2));
+        s = s.replace(/\b(style|class|id)=/g, (m, p1) => wrap('a', p1) + '=');
+      }
+      if (tab === 'css') {
+        s = s.replace(/(@keyframes|@import)/g, (m) => wrap('k', m));
+        s = s.replace(/(\.[a-zA-Z][\w-]*)/g, (m) => wrap('a', m));
+      }
+
+      // Substitute placeholders back to spans
+      return s.replace(/([A-Z]+)/g, (_, c) => { let n=0; for(const ch of c) n=n*26+(ch.charCodeAt(0)-65); return slots[n]; });
+    }
+
+    function renderCode() {
+      const code = generateCode();
+      $('codeBlock').innerHTML = highlight(code, currentTab);
+    }
+
+    // ============ Wire up controls ============
+    function setupSlider(rangeId, numId, key, parser = parseFloat) {
+      const range = $(rangeId), num = $(numId);
+      const handler = (v) => {
+        const parsed = parser(v);
+        if (isNaN(parsed)) return;
+        state[key] = parsed;
+        range.value = parsed;
+        num.value = parsed;
+        renderWall();
+      };
+      range.addEventListener('input', (e) => handler(e.target.value));
+      num.addEventListener('input', (e) => handler(e.target.value));
+    }
+
+    function setupSegmented(segId, key, onChange) {
+      const seg = $(segId);
+      seg.querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          seg.querySelectorAll('button').forEach((b) => b.dataset.active = 'false');
+          btn.dataset.active = 'true';
+          state[key] = btn.dataset.val;
+          if (onChange) onChange();
+          renderWall();
+        });
+      });
+    }
+
+    function applySegmentedActive(segId, key) {
+      $(segId).querySelectorAll('button').forEach((b) => {
+        b.dataset.active = (b.dataset.val === state[key]) ? 'true' : 'false';
+      });
+    }
+
+    function init() {
+      // Language toggle
+      document.querySelectorAll('#langToggle button').forEach((btn) => {
+        btn.addEventListener('click', () => setLang(btn.dataset.lang));
+      });
+
+      // Background
+      $('bgInput').addEventListener('input', (e) => setBg(e.target.value));
+      $('bgHex').addEventListener('input', (e) => {
+        const v = e.target.value;
+        if (isValidHex(v)) setBg(v);
+      });
+
+      // Background glow
+      $('bgGlowToggle').addEventListener('change', (e) => {
+        state.bgGlow = e.target.checked;
+        renderWall();
+      });
+
+
+      // Sliders
+      setupSlider('glowRange', 'glowNum', 'glow', (v) => parseInt(v));
+
+      // Segments
+      setupSegmented('shapeSeg', 'shape');
+      setupSegmented('dotAnimSeg', 'dotAnim');
+
+      // Code tabs
+      const FILENAMES = { html: 'thinking.html', react: 'AIThinking.tsx', css: 'thinking.css' };
+      $('codeTabs').querySelectorAll('button').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          $('codeTabs').querySelectorAll('button').forEach((b) => b.dataset.active = 'false');
+          btn.dataset.active = 'true';
+          currentTab = btn.dataset.tab;
+          $('codeFilename').textContent = FILENAMES[currentTab];
+          renderCode();
+        });
+      });
+
+      // Copy
+      $('copyBtn').addEventListener('click', async () => {
+        const code = generateCode();
+        try {
+          await navigator.clipboard.writeText(code);
+          showToast(t('copied'));
+        } catch {
+          // Fallback
+          const ta = document.createElement('textarea');
+          ta.value = code;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast(t('copied'));
+        }
+      });
+
+      // Random — 3 distinct row colors + random pattern selection + shape/anim/glow
+      $('randomBtn').addEventListener('click', () => {
+        const patterns = Object.keys(PATTERNS);
+        const shapes = ['square', 'rounded', 'circle'];
+        const dotAnims = ['think', 'fade'];
+        const shuffled = [...PRESETS].sort(() => Math.random() - 0.5);
+        state.rowColors = shuffled.slice(0, 3);
+        state.selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
+        state.selectedRow = Math.floor(Math.random() * 3);
+        state.shape = shapes[Math.floor(Math.random() * shapes.length)];
+        state.dotAnim = dotAnims[Math.floor(Math.random() * dotAnims.length)];
+        state.glow = Math.floor(Math.random() * 30);
+        syncControls();
+        renderRowColorControls();
+        applySegmentedActive('shapeSeg', 'shape');
+        applySegmentedActive('dotAnimSeg', 'dotAnim');
+        renderWall();
+      });
+
+      // Reset
+      $('resetBtn').addEventListener('click', () => {
+        state = { ...DEFAULTS, rowColors: [...DEFAULTS.rowColors] };
+        setBg(state.bg);
+        $('bgGlowToggle').checked = state.bgGlow;
+        syncControls();
+        renderRowColorControls();
+        renderBgPresets();
+        applySegmentedActive('shapeSeg', 'shape');
+        applySegmentedActive('dotAnimSeg', 'dotAnim');
+        renderWall();
+      });
+
+      applyLang();
+      syncControls();
+      renderRowColorControls();
+      renderBgPresets();
+      applySegmentedActive('shapeSeg', 'shape');
+      applySegmentedActive('dotAnimSeg', 'dotAnim');
+      renderWall();
+    }
+
+    function syncControls() {
+      $('glowRange').value = state.glow;     $('glowNum').value = state.glow;
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = $('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

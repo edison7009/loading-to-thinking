@@ -1,0 +1,20 @@
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node (if anyone ever adds tooling)
+node_modules/
+
+# Local inspiration archive (kept locally, not published)
+archive/
