@@ -9,7 +9,7 @@ Congrats — you have an AI product now.
 
 This is the spinner that comes with it. **36 thinking animations × 3 colors, in one HTML file. Zero build.**
 
-![hero](docs/hero.png)
+![hero](docs/hero.gif)
 
 ## 🎯 Live Demo
 
