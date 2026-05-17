@@ -7,4 +7,4 @@
 
 <img src="docs/hero.gif" alt="loading-to-thinking" width="100%" />
 
-**Boss, it's done.** 👉 https://edison7009.github.io/loading-to-thinking/
+**Boss, it's thinking....** 👉 https://edison7009.github.io/loading-to-thinking/
