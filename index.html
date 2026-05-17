@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -614,7 +614,13 @@
       }
     };
 
-    let lang = (typeof localStorage !== 'undefined' && localStorage.getItem('aiThinkingLang')) || 'zh';
+    function detectDefaultLang() {
+      if (typeof navigator !== 'undefined' && navigator.language && navigator.language.toLowerCase().startsWith('zh')) {
+        return 'zh';
+      }
+      return 'en';
+    }
+    let lang = (typeof localStorage !== 'undefined' && localStorage.getItem('aiThinkingLang')) || detectDefaultLang();
 
     function t(key) {
       return (LANG[lang] && LANG[lang][key]) || key;
