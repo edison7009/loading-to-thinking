@@ -5,6 +5,6 @@
 - Patron, laissez-moi sortir un produit IA cet après-midi.
 - Chef, lass mich heute Nachmittag ein KI-Produkt entwickeln.
 
-**Yes Boss, it's thinking....** 👉 <a href="https://edison7009.github.io/loading-to-thinking/" target="_blank" rel="noopener">https://edison7009.github.io/loading-to-thinking/</a>
+**Yes Boss, it's thinking....** 👉 https://edison7009.github.io/loading-to-thinking/
 
 <img src="docs/hero.gif" alt="loading-to-thinking" width="100%" />
