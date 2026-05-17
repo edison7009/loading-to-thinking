@@ -9,7 +9,7 @@ Congrats — you have an AI product now.
 
 This is the spinner that comes with it. **36 thinking animations × 3 colors, in one HTML file. Zero build.**
 
-![hero](docs/hero.gif)
+<img src="docs/hero.gif" alt="loading-to-thinking · 36 AI thinking indicators in one HTML file" width="100%" />
 
 ## 🎯 Live Demo
 
